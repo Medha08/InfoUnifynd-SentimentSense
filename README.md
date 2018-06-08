@@ -1,2 +1,2 @@
 # InfoUnifynd-SpeechSense
-Arbitrary Trading using Voice based Sentimental Analysis
+Arbitrary Trading using Sentimental Analysis
