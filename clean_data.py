@@ -63,8 +63,8 @@ def find_Sentiment(filename = "Data_Set.csv"):
     #data = to_list()
     data = data.flatten()
     df['retweet_count'] = data
-    print (df['retweet_count'])
-    print ('\n\n\n\n\n\n\n\n\n\n')
+    #print (df['retweet_count'])
+    #print ('\n\n\n\n\n\n\n\n\n\n')
     sentiment_df = []
     for i in range(len(data)):
         try:
@@ -173,5 +173,6 @@ if __name__=='__main__':
     check = User_rank.sort_values("value",ascending = False)
     print ("Sorted List")
     print(check.head())
+    check.to_csv("Top_Influencers.csv")
     
 
