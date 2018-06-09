@@ -32,27 +32,37 @@ with open('test.csv', 'w', newline='') as csvfile:
     writer.writeheader()
 
     for x in text_parsed:
-        y = (my_date.weekday()-c)%7
-        writer.writerow({'Date': calendar.day_name[y][0:3], 'OpenPrice': x['price_open'],'ClosePrice':x['price_close'],'Difference':x['price_open']-x['price_close']})
-        c= c+1
+        try:
+            y = (my_date.weekday()-c)%7
+            writer.writerow({'Date': calendar.day_name[y][0:3], 'OpenPrice': x['price_open'],'ClosePrice':x['price_close'],'Difference':x['price_open']-x['price_close']})
+            c= c+1
+        except:
+            y=1
+            writer.writerow({'Date': calendar.day_name[y][0:3], 'OpenPrice': x['price_open'],'ClosePrice':x['price_close'],'Difference':x['price_open']-x['price_close']})
+            c= c+1
 
-def find_Sentiment(filename = "temp.csv"):
+def find_Sentiment(filename = "Data_Set.csv"):
     df = pd.read_csv(filename)
     sentiment_df = []
     for i in range(len(df)):
-        temp = []
-        analysis = TextBlob(df.iloc[i]['text'])
-        usr = df.iloc[i]['username']
-        day = df.iloc[i]['day']
-        followers = df.iloc[i]['follower']
-        retweet = df.iloc[i]['retweet']
-        temp.append(usr)
-        temp.append(day)
-        temp.append(followers)
-        temp.append(retweet)
-        temp.append(analysis.sentiment.polarity)
-        print (temp)
-        sentiment_df.append(temp)
+        try:
+
+            temp = []
+            analysis = TextBlob(df.iloc[i]['text'])
+            usr = df.iloc[i]['name']
+            day = df.iloc[i]['created_at']
+            followers = df.iloc[i]['followers_count']
+            retweet = df.iloc[i]['retweet_count']
+            temp.append(usr)
+            temp.append(day)
+            temp.append(followers)
+            temp.append(retweet)
+            temp.append(analysis.sentiment.polarity)
+            print (temp)
+            sentiment_df.append(temp)
+
+        except:
+            print("Faulty Data")
         
     print (sentiment_df) 
     
@@ -63,17 +73,20 @@ def find_Correlation(sentiment_df,price_Change):
     Final_corr = {}
     
     for i in range(len(sentiment_df)):
-        usr = sentiment_df[i][0]
-        day = sentiment_df[i][1]
-        follower = sentiment_df[i][2]
-        retweet = sentiment_df[i][3]
-        val = float(sentiment_df[i][4])
-        diff = price_Change[price_Change['Date']==day]['Difference']
-        val = val*diff
-        try:
-            Final_corr.update({usr:[Final_corr[usr][0] + val,Final_corr[usr][1]+1,follower,Final_corr[usr][3]+retweet]})
+        try: 
+            usr = sentiment_df[i][0]
+            day = sentiment_df[i][1]
+            follower = sentiment_df[i][2]
+            retweet = sentiment_df[i][3]
+            val = float(sentiment_df[i][4])
+            diff = price_Change[price_Change['Date']==day]['Difference']
+            val = val*diff
+            try:
+                Final_corr.update({usr:[Final_corr[usr][0] + val,Final_corr[usr][1]+1,follower,Final_corr[usr][3]+retweet]})
+            except:
+                Final_corr.update({usr:[val,1,0,0]})
         except:
-            Final_corr.update({usr:[val,1,0,0]})
+            print("Faulty Data")
     
     for i in Final_corr.keys():
         Final_corr[i][0] = Final_corr[i][0]/Final_corr[i][1]          
@@ -97,15 +110,28 @@ if __name__=='__main__':
     
     print (Final_corr)
     
-    User_rank = {}
-    
+    User_rank = pd.DataFrame(columns = ['username','value'])
+    t  = 0
     for i in Final_corr.keys():
-        User_rank.update({i:0.6*Final_corr[i][0]+0.2*Final_corr[i][2]+0.2*Final_corr[i][3]})
+
+        tempxx = pd.DataFrame({'username':i,'value':0.6*Final_corr[i][0]+0.2*Final_corr[i][2]+0.2*Final_corr[i][3]})
+        print ("Tempxx::\n\n"  , tempxx)
+        User_rank.append(tempxx,ignore_index = True)
+        ##User_rank = pd.concat(User_rank,[i,0.6*Final_corr[i][0]+0.2*Final_corr[i][2]+0.2*Final_corr[i][3]])
+        #User_rank.loc[t] = [i,0.6*Final_corr[i][0]+0.2*Final_corr[i][2]+0.2*Final_corr[i][3]]
+        t+=1#({i:0.6*Final_corr[i][0]+0.2*Final_corr[i][2]+0.2*Final_corr[i][3]})
     import operator
     x = {1: 2, 3: 4, 4: 3, 2: 1, 0: 0}
-    sorted_x = sorted(User_rank, key=operator.itemgetter(1))
+    #pdf = pd.DataFrame(User_rank)
+
+    # check = User_rank.sort_values(by = 'value', ascending = False)
+    #sorted_x = sorted(User_rank.items(), key=operator.itemgetter(1))
+    #sorted_names = sorted(User_rank, key=User_rank.__getitem__)
     #rank = sorted(User_rank.values())
-    print (sorted_x)    
-    
+    #print (type(check),'\n\n\n\n\n\n\n\n\n')
+    # print (User_rank.head())
+    # print(sorted(User_rank))
+    User_rank.sort_values("value",ascending = False)
+    print(User_rank)
     
 
