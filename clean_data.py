@@ -110,18 +110,35 @@ if __name__=='__main__':
     
     print (Final_corr)
     
-    User_rank = pd.DataFrame(columns = ['username','value'])
+    #User_rank = pd.DataFrame(columns = ['username','value'])
     t  = 0
     for i in Final_corr.keys():
 
+        User_rank = pd.DataFrame({'username':i,'value':0.6*Final_corr[i][0]+0.2*Final_corr[i][2]+0.2*Final_corr[i][3]})
+        print ("Tempxx::\n\n"  , User_rank)
+        break
+
+        
+        #User_rank.append(tempxx,ignore_index = True)
+
+    for i in Final_corr.keys():
+        if t==0:
+            t = 1
+            print ("Never")
+            continue
+
         tempxx = pd.DataFrame({'username':i,'value':0.6*Final_corr[i][0]+0.2*Final_corr[i][2]+0.2*Final_corr[i][3]})
+        
+        
         print ("Tempxx::\n\n"  , tempxx)
-        User_rank.append(tempxx,ignore_index = True)
+        User_rank = User_rank.append(tempxx,ignore_index = True)
+
         ##User_rank = pd.concat(User_rank,[i,0.6*Final_corr[i][0]+0.2*Final_corr[i][2]+0.2*Final_corr[i][3]])
         #User_rank.loc[t] = [i,0.6*Final_corr[i][0]+0.2*Final_corr[i][2]+0.2*Final_corr[i][3]]
         t+=1#({i:0.6*Final_corr[i][0]+0.2*Final_corr[i][2]+0.2*Final_corr[i][3]})
-    import operator
-    x = {1: 2, 3: 4, 4: 3, 2: 1, 0: 0}
+    
+    #import operator
+    #x = {1: 2, 3: 4, 4: 3, 2: 1, 0: 0}
     #pdf = pd.DataFrame(User_rank)
 
     # check = User_rank.sort_values(by = 'value', ascending = False)
@@ -131,7 +148,8 @@ if __name__=='__main__':
     #print (type(check),'\n\n\n\n\n\n\n\n\n')
     # print (User_rank.head())
     # print(sorted(User_rank))
-    User_rank.sort_values("value",ascending = False)
-    print(User_rank)
+    check = User_rank.sort_values("value",ascending = False)
+    print ("Sorted List")
+    print(check.head())
     
 
