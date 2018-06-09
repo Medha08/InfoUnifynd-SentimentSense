@@ -17,6 +17,8 @@ from datetime import date
 import calendar
 my_date = date.today()
 
+from sklearn.preprocessing import MinMaxScaler
+
 
 
 url = 'https://rest.coinapi.io/v1/ohlcv/BITSTAMP_SPOT_BTC_USD/latest?period_id=1DAY&limit=7'
@@ -43,8 +45,28 @@ with open('test.csv', 'w', newline='') as csvfile:
 
 def find_Sentiment(filename = "Data_Set.csv"):
     df = pd.read_csv(filename)
+    scaler = MinMaxScaler(feature_range =(0,1))
+   
+    X = df['followers_count']
+    Z = df['retweet_count']
+    
+    X = X.reshape(len(X),1)
+    Z = Z.reshape(len(X),1)
+    print (Z)
+
+    #print ('\n\n\n\n\n',Y)
+
+    data = scaler.fit_transform(X)
+    data = data.flatten()
+    df['followers_count'] = data
+    data = scaler.fit_transform(Z)
+    #data = to_list()
+    data = data.flatten()
+    df['retweet_count'] = data
+    print (df['retweet_count'])
+    print ('\n\n\n\n\n\n\n\n\n\n')
     sentiment_df = []
-    for i in range(len(df)):
+    for i in range(len(data)):
         try:
 
             temp = []
