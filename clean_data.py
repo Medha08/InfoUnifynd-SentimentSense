@@ -80,6 +80,7 @@ def find_Sentiment(filename = "Data_Set.csv"):
             temp.append(followers)
             temp.append(retweet)
             temp.append(analysis.sentiment.polarity)
+            temp.append(df.iloc[i]['text'])
             print (temp)
             sentiment_df.append(temp)
 
@@ -88,6 +89,11 @@ def find_Sentiment(filename = "Data_Set.csv"):
         
     print (sentiment_df) 
     
+    # sentiment_df.to_csv("Dataset_SA_Tweet.csv")
+    with open("Dataset_SA_Tweet.csv", 'w') as myfile:
+        for obj in sentiment_df:
+            wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+            wr.writerow(obj)
     return sentiment_df
 
 def find_Correlation(sentiment_df,price_Change):
@@ -101,8 +107,11 @@ def find_Correlation(sentiment_df,price_Change):
             follower = sentiment_df[i][2]
             retweet = sentiment_df[i][3]
             val = float(sentiment_df[i][4])
-            diff = price_Change[price_Change['Date']==day]['Difference']
-            val = val*diff
+            diff_index = price_Change[price_Change['Date']==day].index
+            for index in diff_index:
+                val += val*price_Change.loc[index]['Difference']
+
+            #val = val*diff
             try:
                 Final_corr.update({usr:[Final_corr[usr][0] + val,Final_corr[usr][1]+1,follower,Final_corr[usr][3]+retweet]})
             except:
@@ -123,6 +132,7 @@ def find_Correlation(sentiment_df,price_Change):
 if __name__=='__main__':
     
     
+
     sentiment_df = find_Sentiment()
     price_Change = pd.read_csv('test.csv')
     
@@ -136,7 +146,7 @@ if __name__=='__main__':
     t  = 0
     for i in Final_corr.keys():
 
-        User_rank = pd.DataFrame({'username':i,'value':0.6*Final_corr[i][0]+0.2*Final_corr[i][2]+0.2*Final_corr[i][3]})
+        User_rank = pd.DataFrame({'username':i,'value':0.4*Final_corr[i][0]+0.2*Final_corr[i][2]+0.4*Final_corr[i][3]})
         print ("Tempxx::\n\n"  , User_rank)
         break
 
@@ -152,7 +162,7 @@ if __name__=='__main__':
         tempxx = pd.DataFrame({'username':i,'value':0.6*Final_corr[i][0]+0.2*Final_corr[i][2]+0.2*Final_corr[i][3]})
         
         
-        print ("Tempxx::\n\n"  , tempxx)
+        #print ("Tempxx::\n\n"  , tempxx)
         User_rank = User_rank.append(tempxx,ignore_index = True)
 
         ##User_rank = pd.concat(User_rank,[i,0.6*Final_corr[i][0]+0.2*Final_corr[i][2]+0.2*Final_corr[i][3]])
@@ -172,7 +182,27 @@ if __name__=='__main__':
     # print(sorted(User_rank))
     check = User_rank.sort_values("value",ascending = False)
     print ("Sorted List")
-    print(check.head())
+    Top_users = (check.head(30))
+
+    top = list()
+
+    for i in Top_users['username']:
+        for j in sentiment_df:
+            if j[0]==i:
+                top.append(j)
+
+    print ("Top Users")
+    print (top)   
+
+    with open("Top_Dataset_SA_Tweet.csv", 'w') as myfile:
+        for obj in top:
+            wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+            wr.writerow(obj)
+
+
+
+    # User and SA
     check.to_csv("Top_Influencers.csv")
     
+    # 
 
