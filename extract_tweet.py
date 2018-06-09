@@ -23,13 +23,27 @@ api = tweepy.API(auth,wait_on_rate_limit=True)
 csvFile = open('ua.csv', 'a')
 #Use csv Writer
 csvWriter = csv.writer(csvFile)
+searched_tweets = [status for status in tweepy.Cursor(api.search, q='#Crypto').items(10)]
+# print(searched_tweets)
+for tweet in searched_tweets:
+	# print("here")
+	print(tweet._json["user"]["name"])
+	# print("\n")
+	csvWriter.writerow([tweet.user.name, tweet._json["text"]])
 
-for tweet in tweepy.Cursor(api.search,q="#cryptocurrency",count=100,lang="en").items():
-                        print (tweet.created_at, tweet.text)
-                        csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8')])
+# for tweet in tweepy.Cursor(api.search,q="#cryptocurrency",count=10,lang="en").items():
+#     print("here")
+#     csvWriter.writerow([tweet.user.name, tweet._json["text"]])
+
+for tweet in tweepy.Cursor(api.search,q="#cryptocurrency -filter:retweets",count=100,lang="en").items():
+# 		                        # print (tweet.created_at, tweet.user._json["screen_name"], tweet.text)
+		                        print("here")
+# 		                        print("\n")
+# 		                        csvWriter.writerow([tweet.created_at, tweet.text])
+# 		                        break
         
 
-for tweet in tweepy.Cursor(api.search,q="#bitcoin",count=100,lang="en").items():
-                        print (tweet.created_at, tweet.text)
-                        csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8')])
-        
+# status = tweepy.Cursor(api.search,q="#bitcoin",count=100,lang="en").items():
+#                         print (tweet.created_at, tweet.text, tweet.user._json["screen_name"])
+                        # csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8')])
+                        # break
