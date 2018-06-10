@@ -46,13 +46,12 @@ with open('test.csv', 'w', newline='') as csvfile:
 def find_Sentiment(filename = "Data_Set.csv"):
     df = pd.read_csv(filename)
     scaler = MinMaxScaler(feature_range =(0,1))
-   
     X = df['followers_count']
     Z = df['retweet_count']
     
     X = X.reshape(len(X),1)
     Z = Z.reshape(len(X),1)
-    print (Z)
+    # print (Z)
 
     #print ('\n\n\n\n\n',Y)
 
@@ -66,28 +65,29 @@ def find_Sentiment(filename = "Data_Set.csv"):
     #print (df['retweet_count'])
     #print ('\n\n\n\n\n\n\n\n\n\n')
     sentiment_df = []
+    # print(len(data);)
     for i in range(len(data)):
         try:
 
             temp = []
-            analysis = TextBlob(df.iloc[i]['text'])
-            usr = df.iloc[i]['name']
-            day = df.iloc[i]['created_at']
-            followers = df.iloc[i]['followers_count']
-            retweet = df.iloc[i]['retweet_count']
+            analysis = TextBlob(df.loc[i]['text'])
+            usr = df.loc[i]['name']
+            day = df.loc[i]['created_at']
+            followers = df.loc[i]['followers_count']
+            retweet = df.loc[i]['retweet_count']
             temp.append(usr)
             temp.append(day)
             temp.append(followers)
             temp.append(retweet)
             temp.append(analysis.sentiment.polarity)
-            temp.append(df.iloc[i]['text'])
-            print (temp)
+            temp.append(df.loc[i]['text'])
+            # print (temp)
             sentiment_df.append(temp)
 
         except:
             print("Faulty Data")
         
-    print (sentiment_df) 
+    # print (sentiment_df) 
     
     # sentiment_df.to_csv("Dataset_SA_Tweet.csv")
     with open("Dataset_SA_Tweet.csv", 'w') as myfile:
@@ -107,9 +107,11 @@ def find_Correlation(sentiment_df,price_Change):
             follower = sentiment_df[i][2]
             retweet = sentiment_df[i][3]
             val = float(sentiment_df[i][4])
+
             diff_index = price_Change[price_Change['Date']==day].index
+            
             for index in diff_index:
-                val += val*price_Change.loc[index]['Difference']
+                val = val*price_Change.loc[index]['Difference']
 
             #val = val*diff
             try:
@@ -140,14 +142,14 @@ if __name__=='__main__':
     Final_corr = find_Correlation(sentiment_df,price_Change)
     
     
-    print (Final_corr)
+    # print (Final_corr)
     
-    #User_rank = pd.DataFrame(columns = ['username','value'])
+    User_rank = pd.DataFrame(columns = ['username','value'])
     t  = 0
     for i in Final_corr.keys():
 
-        User_rank = pd.DataFrame({'username':i,'value':0.4*Final_corr[i][0]+0.2*Final_corr[i][2]+0.4*Final_corr[i][3]})
-        print ("Tempxx::\n\n"  , User_rank)
+        User_rank = pd.DataFrame({'username':i,'value':(0.4*Final_corr[i][0]+0.2*Final_corr[i][2]+0.4*Final_corr[i][3])}, index=[0])
+        # print ("Tempxx::\n\n"  , User_rank)
         break
 
         
@@ -156,11 +158,11 @@ if __name__=='__main__':
     for i in Final_corr.keys():
         if t==0:
             t = 1
-            print ("Never")
+            # print ("Never")
             continue
 
-        tempxx = pd.DataFrame({'username':i,'value':0.6*Final_corr[i][0]+0.2*Final_corr[i][2]+0.2*Final_corr[i][3]})
-        
+        tempxx = pd.DataFrame({'username':i,'value':0.4*Final_corr[i][0]+0.2*Final_corr[i][2]+0.4*Final_corr[i][3]}, index=[0])
+        # print('username'+i +'sentiment'+Final_corr[i][0]+ 'followers_count:'+Final_corr[i][2]+ 'retweets:' + Final_corr[i][3])
         
         #print ("Tempxx::\n\n"  , tempxx)
         User_rank = User_rank.append(tempxx,ignore_index = True)
@@ -181,7 +183,7 @@ if __name__=='__main__':
     # print (User_rank.head())
     # print(sorted(User_rank))
     check = User_rank.sort_values("value",ascending = False)
-    print ("Sorted List")
+    # print ("Sorted List")
     Top_users = (check.head(30))
 
     top = list()
@@ -191,8 +193,8 @@ if __name__=='__main__':
             if j[0]==i:
                 top.append(j)
 
-    print ("Top Users")
-    print (top)   
+    # print ("Top Users")
+    # print (top)   
 
     with open("Top_Dataset_SA_Tweet.csv", 'w') as myfile:
         for obj in top:
