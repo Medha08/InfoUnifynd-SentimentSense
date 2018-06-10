@@ -22,7 +22,7 @@ class NN():
         model.add(Dense(4))
         model.add(Dropout(0.01))
         model.add(Dense(2))
-        #
+        
         
         
         model.add(Dense(1))
